@@ -73,6 +73,27 @@
             stroke: #9CA3AF;
             fill: #9CA3AF;
         }
+
+        /* Style the file input button */
+        .logo-file::-webkit-file-upload-button {
+            visibility: hidden;
+        }
+        .logo-file::before {
+            content: 'Select Image';
+            display: inline-block;
+            background: #D1D5DB; /* Tailwind gray-300 */
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            outline: none;
+            cursor: pointer;
+            font-weight: 500;
+            color: #374151; /* Tailwind gray-700 */
+            white-space: nowrap;
+        }
+        .dark .logo-file::before {
+            background: #4B5563; /* Tailwind gray-600 */
+            color: #E5E7EB; /* Tailwind gray-200 */
+        }
     </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
@@ -100,6 +121,25 @@
                             placeholder="e.g., https://www.google.com or Your custom text"
                         >https://www.google.com</textarea>
                     </div>
+                    
+                    <!-- Logo Section -->
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Add a Logo
+                        </label>
+                        <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                            <!-- Logo URL Input -->
+                            <input type="url" id="logo-url" class="flex-1 p-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Paste image URL here">
+                            <!-- Logo File Input -->
+                            <div class="flex items-center justify-center">
+                                <label for="logo-file" class="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-blue-600 cursor-pointer transition-colors duration-200">
+                                    Upload File
+                                </label>
+                                <input type="file" id="logo-file" accept="image/*" class="hidden logo-file">
+                            </div>
+                        </div>
+                    </div>
+
 
                     <!-- Customization Options -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -244,6 +284,8 @@
         const dotColorInput = document.getElementById('dot-color');
         const bgColorInput = document.getElementById('bg-color');
         const qrcodeContainer = document.getElementById('canvas');
+        const logoUrlInput = document.getElementById('logo-url');
+        const logoFileInput = document.getElementById('logo-file');
         const dotStyleRadios = document.querySelectorAll('input[name="dot-style"]');
         const markerStyleRadios = document.querySelectorAll('input[name="marker-style"]');
         const markerCenterStyleRadios = document.querySelectorAll('input[name="marker-center-style"]');
@@ -256,7 +298,7 @@
             margin: 4,
             dotsOptions: {
                 color: dotColorInput.value,
-                type: 'square' // Default to sharp edges
+                type: 'square'
             },
             backgroundOptions: {
                 color: bgColorInput.value,
@@ -275,7 +317,7 @@
         const qrCode = new QRCodeStyling(options);
 
         // Function to regenerate the QR code based on user input
-        function generateQRCode() {
+        async function generateQRCode() {
             // Get the value of the selected dot style radio button
             const selectedDotStyleValue = document.querySelector('input[name="dot-style"]:checked').value;
             let dotType;
@@ -300,6 +342,22 @@
             // Get the value of the selected marker center style radio button
             const selectedMarkerCenterStyleValue = document.querySelector('input[name="marker-center-style"]:checked').value;
 
+            // Handle logo image based on input type (URL or File)
+            let logoImage = null;
+            if (logoUrlInput.value) {
+                // If a URL is entered, use it directly
+                logoImage = logoUrlInput.value;
+            } else if (logoFileInput.files.length > 0) {
+                // If a file is uploaded, read it as a Data URL
+                const file = logoFileInput.files[0];
+                const reader = new FileReader();
+                logoImage = await new Promise((resolve) => {
+                    reader.onloadend = () => resolve(reader.result);
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            // Update QR code options
             qrCode.update({
                 data: qrDataInput.value || ' ',
                 dotsOptions: {
@@ -316,7 +374,16 @@
                 cornersDotOptions: {
                     color: dotColorInput.value,
                     type: selectedMarkerCenterStyleValue
-                }
+                },
+                // Add logo options if an image is available
+                ...(logoImage && {
+                    image: logoImage,
+                    imageOptions: {
+                        crossOrigin: 'anonymous', // Required for external images
+                        margin: 10,
+                        imageSize: 0.15 // Adjust image size relative to QR code
+                    }
+                })
             });
         }
 
@@ -324,6 +391,16 @@
         qrDataInput.addEventListener('input', generateQRCode);
         dotColorInput.addEventListener('input', generateQRCode);
         bgColorInput.addEventListener('input', generateQRCode);
+        logoUrlInput.addEventListener('input', () => {
+            // Clear file input when URL is used
+            logoFileInput.value = '';
+            generateQRCode();
+        });
+        logoFileInput.addEventListener('change', () => {
+            // Clear URL input when a file is selected
+            logoUrlInput.value = '';
+            generateQRCode();
+        });
         dotStyleRadios.forEach(radio => radio.addEventListener('change', generateQRCode));
         markerStyleRadios.forEach(radio => radio.addEventListener('change', generateQRCode));
         markerCenterStyleRadios.forEach(radio => radio.addEventListener('change', generateQRCode));
