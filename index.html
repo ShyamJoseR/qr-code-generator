@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- QR Code Styling library CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Hide the default radio button */
+        .dot-option input[type="radio"] {
+            display: none;
+        }
+
+        /* Style the label for the radio buttons */
+        .dot-option label {
+            display: block;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            border: 2px solid transparent;
+            transition: all 0.2s ease-in-out;
+        }
+
+        /* Style the SVG icon inside the label */
+        .dot-option svg {
+            stroke: #374151; /* Default stroke color for dark mode compatibility */
+            fill: #374151; /* Default fill color */
+        }
+
+        /* Selected state styling */
+        .dot-option input[type="radio"]:checked + label {
+            background-color: #DBEAFE; /* Tailwind blue-100 */
+            border-color: #3B82F6; /* Tailwind blue-500 */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Dark mode styling */
+        .dark .dot-option label {
+            background-color: #374151;
+            border-color: #4B5563;
+        }
+
+        .dark .dot-option input[type="radio"]:checked + label {
+            background-color: #1F2937; /* Tailwind gray-800 */
+            border-color: #60A5FA; /* Tailwind blue-400 */
+        }
+        
+        .dark .dot-option svg {
+            stroke: #9CA3AF;
+            fill: #9CA3AF;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+
+    <div class="flex items-center justify-center min-h-screen p-4 sm:p-8">
+        <div class="container mx-auto max-w-6xl">
+            <div class="flex flex-col lg:flex-row bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
+                <!-- Settings Panel -->
+                <div class="w-full lg:w-1/2 p-6 sm:p-10 flex flex-col space-y-6">
+                    <h1 class="text-3xl sm:text-4xl font-extrabold text-blue-600 dark:text-blue-400 mb-2">
+                        QR Code Generator
+                    </h1>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm sm:text-base">
+                        Enter text or a URL and customize your QR code.
+                    </p>
+
+                    <!-- Input Field for QR Code Data -->
+                    <div class="flex-1">
+                        <label for="qr-data" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Enter Text or URL:
+                        </label>
+                        <textarea
+                            id="qr-data"
+                            class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 transition-colors duration-200 resize-none min-h-[100px] sm:min-h-[150px]"
+                            placeholder="e.g., https://www.google.com or Your custom text"
+                        >https://www.google.com</textarea>
+                    </div>
+
+                    <!-- Customization Options -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Dot Color Input -->
+                        <div>
+                            <label for="dot-color" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Dot Color
+                            </label>
+                            <input type="color" id="dot-color" value="#000000"
+                                class="w-full h-12 rounded-lg shadow-sm cursor-pointer border-gray-300 dark:border-gray-600">
+                        </div>
+
+                        <!-- Background Color Input -->
+                        <div>
+                            <label for="bg-color" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Background Color
+                            </label>
+                            <input type="color" id="bg-color" value="#FFFFFF"
+                                class="w-full h-12 rounded-lg shadow-sm cursor-pointer border-gray-300 dark:border-gray-600">
+                        </div>
+                    </div>
+
+                    <!-- Dot Style Radio Images -->
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Dot Style
+                        </label>
+                        <div class="grid grid-cols-3 gap-4">
+                            <!-- Sharp Edges -->
+                            <div class="dot-option">
+                                <input type="radio" id="dots-sharp" name="dot-style" value="sharp" checked>
+                                <label for="dots-sharp" class="flex items-center justify-center">
+                                    <svg viewBox="0 0 32 32" class="h-10 w-10">
+                                        <rect x="0" y="0" width="32" height="32" rx="0" ry="0" fill="currentColor"></rect>
+                                    </svg>
+                                </label>
+                            </div>
+                            <!-- Blunt Edges -->
+                            <div class="dot-option">
+                                <input type="radio" id="dots-blunt" name="dot-style" value="blunt">
+                                <label for="dots-blunt" class="flex items-center justify-center">
+                                    <svg viewBox="0 0 32 32" class="h-10 w-10">
+                                        <rect x="0" y="0" width="32" height="32" rx="4" ry="4" fill="currentColor"></rect>
+                                    </svg>
+                                </label>
+                            </div>
+                            <!-- Circle Dots -->
+                            <div class="dot-option">
+                                <input type="radio" id="dots-circle" name="dot-style" value="circle">
+                                <label for="dots-circle" class="flex items-center justify-center">
+                                    <svg viewBox="0 0 32 32" class="h-10 w-10">
+                                        <circle cx="16" cy="16" r="16" fill="currentColor"></circle>
+                                    </svg>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- QR Code Display Panel -->
+                <div class="w-full lg:w-1/2 p-6 sm:p-10 bg-gray-200 dark:bg-gray-700 flex items-center justify-center rounded-b-2xl lg:rounded-l-none lg:rounded-r-2xl">
+                    <div class="w-full max-w-xs sm:max-w-md bg-white dark:bg-gray-900 p-4 rounded-xl shadow-xl flex items-center justify-center aspect-square">
+                        <div id="canvas" class="w-full h-full flex items-center justify-center"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get references to DOM elements
+        const qrDataInput = document.getElementById('qr-data');
+        const dotColorInput = document.getElementById('dot-color');
+        const bgColorInput = document.getElementById('bg-color');
+        const qrcodeContainer = document.getElementById('canvas');
+        const dotStyleRadios = document.querySelectorAll('input[name="dot-style"]');
+
+        // Initial configuration for the QR code
+        const options = {
+            width: 256,
+            height: 256,
+            data: qrDataInput.value,
+            margin: 4,
+            dotsOptions: {
+                color: dotColorInput.value,
+                type: 'square' // Default to sharp edges
+            },
+            backgroundOptions: {
+                color: bgColorInput.value,
+            },
+            // Inside margin structures are represented by corner styles in this library
+            cornersSquareOptions: {
+                type: 'square'
+            },
+            cornersDotOptions: {
+                type: 'square'
+            }
+        };
+
+        // Create a new QR code styling instance
+        const qrCode = new QRCodeStyling(options);
+
+        // Function to regenerate the QR code based on user input
+        function generateQRCode() {
+            // Get the value of the selected dot style radio button
+            const selectedDotStyleValue = document.querySelector('input[name="dot-style"]:checked').value;
+            let dotType;
+            
+            // Map the selected value to the library's type
+            switch (selectedDotStyleValue) {
+                case 'sharp':
+                    dotType = 'square';
+                    break;
+                case 'blunt':
+                    dotType = 'rounded';
+                    break;
+                case 'circle':
+                    dotType = 'dots';
+                    break;
+                default:
+                    dotType = 'square'; // Fallback
+            }
+
+            qrCode.update({
+                data: qrDataInput.value || ' ',
+                dotsOptions: {
+                    color: dotColorInput.value,
+                    type: dotType
+                },
+                backgroundOptions: {
+                    color: bgColorInput.value,
+                }
+            });
+        }
+
+        // Add event listeners to the input fields and radio buttons
+        qrDataInput.addEventListener('input', generateQRCode);
+        dotColorInput.addEventListener('input', generateQRCode);
+        bgColorInput.addEventListener('input', generateQRCode);
+        dotStyleRadios.forEach(radio => radio.addEventListener('change', generateQRCode));
+
+        // Initial QR code generation
+        qrCode.append(qrcodeContainer);
+    </script>
+</body>
+</html>
