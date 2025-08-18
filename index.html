@@ -18,13 +18,15 @@
 
         /* Hide the default radio button */
         .dot-option input[type="radio"],
-        .marker-option input[type="radio"] {
+        .marker-option input[type="radio"],
+        .marker-center-option input[type="radio"] {
             display: none;
         }
 
         /* Style the label for the radio buttons */
         .dot-option label,
-        .marker-option label {
+        .marker-option label,
+        .marker-center-option label {
             display: block;
             cursor: pointer;
             padding: 0.5rem;
@@ -35,14 +37,16 @@
 
         /* Style the SVG icon inside the label */
         .dot-option svg,
-        .marker-option svg {
+        .marker-option svg,
+        .marker-center-option svg {
             stroke: #374151; /* Default stroke color for dark mode compatibility */
             fill: #374151; /* Default fill color */
         }
 
         /* Selected state styling */
         .dot-option input[type="radio"]:checked + label,
-        .marker-option input[type="radio"]:checked + label {
+        .marker-option input[type="radio"]:checked + label,
+        .marker-center-option input[type="radio"]:checked + label {
             background-color: #DBEAFE; /* Tailwind blue-100 */
             border-color: #3B82F6; /* Tailwind blue-500 */
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
@@ -50,19 +54,22 @@
 
         /* Dark mode styling */
         .dark .dot-option label,
-        .dark .marker-option label {
+        .dark .marker-option label,
+        .dark .marker-center-option label {
             background-color: #374151;
             border-color: #4B5563;
         }
 
         .dark .dot-option input[type="radio"]:checked + label,
-        .dark .marker-option input[type="radio"]:checked + label {
+        .dark .marker-option input[type="radio"]:checked + label,
+        .dark .marker-center-option input[type="radio"]:checked + label {
             background-color: #1F2937; /* Tailwind gray-800 */
             border-color: #60A5FA; /* Tailwind blue-400 */
         }
         
         .dark .dot-option svg,
-        .dark .marker-option svg {
+        .dark .marker-option svg,
+        .dark .marker-center-option svg {
             stroke: #9CA3AF;
             fill: #9CA3AF;
         }
@@ -143,7 +150,7 @@
                             <div class="dot-option">
                                 <input type="radio" id="dots-circle" name="dot-style" value="circle">
                                 <label for="dots-circle" class="flex items-center justify-center">
-                                    <svg viewBox="0 0 32 32" class="h-10 w-10">
+                                    <svg viewBox="0 0 0 32 32" class="h-10 w-10">
                                         <circle cx="16" cy="16" r="16" fill="currentColor"></circle>
                                     </svg>
                                 </label>
@@ -190,6 +197,35 @@
                         </div>
                     </div>
 
+                    <!-- Marker Center Radio Images -->
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Marker Center
+                        </label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <!-- Sharp Marker Center -->
+                            <div class="marker-center-option">
+                                <input type="radio" id="center-sharp" name="marker-center-style" value="square" checked>
+                                <label for="center-sharp" class="flex items-center justify-center">
+                                    <svg viewBox="0 0 32 32" class="h-10 w-10">
+                                        <rect x="4" y="4" width="24" height="24" rx="0" ry="0" fill="#FFF" stroke="#374151" stroke-width="2"></rect>
+                                        <rect x="10" y="10" width="12" height="12" rx="0" ry="0" fill="currentColor"></rect>
+                                    </svg>
+                                </label>
+                            </div>
+                            <!-- Circle Marker Center -->
+                            <div class="marker-center-option">
+                                <input type="radio" id="center-circle" name="marker-center-style" value="dots">
+                                <label for="center-circle" class="flex items-center justify-center">
+                                    <svg viewBox="0 0 32 32" class="h-10 w-10">
+                                        <rect x="4" y="4" width="24" height="24" rx="10" ry="10" fill="#FFF" stroke="#374151" stroke-width="2"></rect>
+                                        <circle cx="16" cy="16" r="6" fill="currentColor"></circle>
+                                    </svg>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
                 <!-- QR Code Display Panel -->
@@ -210,6 +246,7 @@
         const qrcodeContainer = document.getElementById('canvas');
         const dotStyleRadios = document.querySelectorAll('input[name="dot-style"]');
         const markerStyleRadios = document.querySelectorAll('input[name="marker-style"]');
+        const markerCenterStyleRadios = document.querySelectorAll('input[name="marker-center-style"]');
 
         // Initial configuration for the QR code
         const options = {
@@ -224,12 +261,13 @@
             backgroundOptions: {
                 color: bgColorInput.value,
             },
-            // Inside margin structures are represented by corner styles in this library
             cornersSquareOptions: {
-                type: 'square'
+                type: 'square',
+                color: dotColorInput.value
             },
             cornersDotOptions: {
-                type: 'square'
+                type: 'square',
+                color: dotColorInput.value
             }
         };
 
@@ -259,6 +297,8 @@
 
             // Get the value of the selected marker style radio button
             const selectedMarkerStyleValue = document.querySelector('input[name="marker-style"]:checked').value;
+            // Get the value of the selected marker center style radio button
+            const selectedMarkerCenterStyleValue = document.querySelector('input[name="marker-center-style"]:checked').value;
 
             qrCode.update({
                 data: qrDataInput.value || ' ',
@@ -275,7 +315,7 @@
                 },
                 cornersDotOptions: {
                     color: dotColorInput.value,
-                    type: selectedMarkerStyleValue
+                    type: selectedMarkerCenterStyleValue
                 }
             });
         }
@@ -286,6 +326,7 @@
         bgColorInput.addEventListener('input', generateQRCode);
         dotStyleRadios.forEach(radio => radio.addEventListener('change', generateQRCode));
         markerStyleRadios.forEach(radio => radio.addEventListener('change', generateQRCode));
+        markerCenterStyleRadios.forEach(radio => radio.addEventListener('change', generateQRCode));
 
         // Initial QR code generation
         window.onload = () => qrCode.append(qrcodeContainer);
