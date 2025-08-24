@@ -162,6 +162,18 @@
                                     </label>
                                     <input type="color" id="dot-color" value="#000000"
                                         class="w-full h-12 rounded-lg shadow-sm cursor-pointer border-gray-300 dark:border-gray-600">
+                                    <div class="mt-2 flex flex-col space-y-2">
+                                        <input type="text" id="dot-color-hex" value="#000000" placeholder="#RRGGBB"
+                                            class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                                        <div class="flex space-x-2">
+                                            <input type="number" id="dot-color-r" value="0" min="0" max="255" placeholder="R"
+                                                class="w-1/3 p-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                                            <input type="number" id="dot-color-g" value="0" min="0" max="255" placeholder="G"
+                                                class="w-1/3 p-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                                            <input type="number" id="dot-color-b" value="0" min="0" max="255" placeholder="B"
+                                                class="w-1/3 p-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                                        </div>
+                                    </div>
                                 </div>
         
                                 <!-- Background Color Input -->
@@ -171,6 +183,18 @@
                                     </label>
                                     <input type="color" id="bg-color" value="#FFFFFF"
                                         class="w-full h-12 rounded-lg shadow-sm cursor-pointer border-gray-300 dark:border-gray-600">
+                                    <div class="mt-2 flex flex-col space-y-2">
+                                        <input type="text" id="bg-color-hex" value="#FFFFFF" placeholder="#RRGGBB"
+                                            class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                                        <div class="flex space-x-2">
+                                            <input type="number" id="bg-color-r" value="255" min="0" max="255" placeholder="R"
+                                                class="w-1/3 p-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                                            <input type="number" id="bg-color-g" value="255" min="0" max="255" placeholder="G"
+                                                class="w-1/3 p-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                                            <input type="number" id="bg-color-b" value="255" min="0" max="255" placeholder="B"
+                                                class="w-1/3 p-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100">
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -204,7 +228,7 @@
                                         <div class="dot-option">
                                             <input type="radio" id="dots-circle" name="dot-style" value="circle">
                                             <label for="dots-circle" class="flex items-center justify-center">
-                                                <svg viewBox="0 0 0 32" class="h-10 w-10">
+                                                <svg viewBox="0 0 32 32" class="h-10 w-10">
                                                     <circle cx="16" cy="16" r="16" fill="currentColor"></circle>
                                                 </svg>
                                             </label>
@@ -351,6 +375,16 @@
         const downloadResolutionInput = document.getElementById('download-resolution');
         const downloadBtn = document.getElementById('download-btn');
         
+        // New color inputs
+        const dotColorHexInput = document.getElementById('dot-color-hex');
+        const dotColorRInput = document.getElementById('dot-color-r');
+        const dotColorGInput = document.getElementById('dot-color-g');
+        const dotColorBInput = document.getElementById('dot-color-b');
+        const bgColorHexInput = document.getElementById('bg-color-hex');
+        const bgColorRInput = document.getElementById('bg-color-r');
+        const bgColorGInput = document.getElementById('bg-color-g');
+        const bgColorBInput = document.getElementById('bg-color-b');
+
         // Set the copyright year dynamically
         const copyrightYearSpan = document.getElementById('copyright-year');
         copyrightYearSpan.textContent = new Date().getFullYear();
@@ -380,6 +414,35 @@
 
         // Create a new QR code styling instance
         const qrCode = new QRCodeStyling(options);
+
+        /**
+         * Converts an RGB color value to a hexadecimal string.
+         * @param {number} r The red color value (0-255).
+         * @param {number} g The green color value (0-255).
+         * @param {number} b The blue color value (0-255).
+         * @returns {string} The hex string, e.g., "#FF0000".
+         */
+        function rgbToHex(r, g, b) {
+            const toHex = (c) => {
+                const hex = Math.max(0, Math.min(255, c)).toString(16);
+                return hex.length === 1 ? "0" + hex : hex;
+            };
+            return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+        }
+
+        /**
+         * Converts a hexadecimal color string to an RGB object.
+         * @param {string} hex The hex string, e.g., "#FF0000" or "FF0000".
+         * @returns {{r: number, g: number, b: number}} The RGB object.
+         */
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : null;
+        }
 
         // Function to regenerate the QR code based on user input
         async function generateQRCode() {
@@ -426,18 +489,18 @@
             qrCode.update({
                 data: qrDataInput.value || ' ',
                 dotsOptions: {
-                    color: dotColorInput.value,
+                    color: dotColorHexInput.value,
                     type: dotType
                 },
                 backgroundOptions: {
-                    color: bgColorInput.value,
+                    color: bgColorHexInput.value,
                 },
                 cornersSquareOptions: {
-                    color: dotColorInput.value,
+                    color: dotColorHexInput.value,
                     type: selectedMarkerStyleValue
                 },
                 cornersDotOptions: {
-                    color: dotColorInput.value,
+                    color: dotColorHexInput.value,
                     type: selectedMarkerCenterStyleValue
                 },
                 // Add logo options if an image is available
@@ -488,11 +551,36 @@
             // Clean up the temporary div and instance
             tempDiv.remove();
         }
+        
+        // Function to synchronize all dot color inputs
+        function syncDotColorInputs(hexColor) {
+            dotColorInput.value = hexColor;
+            dotColorHexInput.value = hexColor.toUpperCase();
+            const rgb = hexToRgb(hexColor);
+            if (rgb) {
+                dotColorRInput.value = rgb.r;
+                dotColorGInput.value = rgb.g;
+                dotColorBInput.value = rgb.b;
+            }
+            generateQRCode();
+        }
+
+        // Function to synchronize all background color inputs
+        function syncBgColorInputs(hexColor) {
+            bgColorInput.value = hexColor;
+            bgColorHexInput.value = hexColor.toUpperCase();
+            const rgb = hexToRgb(hexColor);
+            if (rgb) {
+                bgColorRInput.value = rgb.r;
+                bgColorGInput.value = rgb.g;
+                bgColorBInput.value = rgb.b;
+            }
+            generateQRCode();
+        }
+
 
         // Add event listeners to the input fields and radio buttons
         qrDataInput.addEventListener('input', generateQRCode);
-        dotColorInput.addEventListener('input', generateQRCode);
-        bgColorInput.addEventListener('input', generateQRCode);
         logoUrlInput.addEventListener('input', () => {
             // Clear file input when URL is used
             logoFileInput.value = '';
@@ -506,6 +594,27 @@
         dotStyleRadios.forEach(radio => radio.addEventListener('change', generateQRCode));
         markerStyleRadios.forEach(radio => radio.addEventListener('change', generateQRCode));
         markerCenterStyleRadios.forEach(radio => radio.addEventListener('change', generateQRCode));
+
+        // Event listeners for color inputs
+        dotColorInput.addEventListener('input', (e) => syncDotColorInputs(e.target.value));
+        dotColorHexInput.addEventListener('input', (e) => {
+            if (e.target.value.length === 7 && e.target.value.startsWith('#')) {
+                syncDotColorInputs(e.target.value);
+            }
+        });
+        dotColorRInput.addEventListener('input', () => syncDotColorInputs(rgbToHex(dotColorRInput.value, dotColorGInput.value, dotColorBInput.value)));
+        dotColorGInput.addEventListener('input', () => syncDotColorInputs(rgbToHex(dotColorRInput.value, dotColorGInput.value, dotColorBInput.value)));
+        dotColorBInput.addEventListener('input', () => syncDotColorInputs(rgbToHex(dotColorRInput.value, dotColorGInput.value, dotColorBInput.value)));
+
+        bgColorInput.addEventListener('input', (e) => syncBgColorInputs(e.target.value));
+        bgColorHexInput.addEventListener('input', (e) => {
+            if (e.target.value.length === 7 && e.target.value.startsWith('#')) {
+                syncBgColorInputs(e.target.value);
+            }
+        });
+        bgColorRInput.addEventListener('input', () => syncBgColorInputs(rgbToHex(bgColorRInput.value, bgColorGInput.value, bgColorBInput.value)));
+        bgColorGInput.addEventListener('input', () => syncBgColorInputs(rgbToHex(bgColorRInput.value, bgColorGInput.value, bgColorBInput.value)));
+        bgColorBInput.addEventListener('input', () => syncBgColorInputs(rgbToHex(bgColorRInput.value, bgColorGInput.value, bgColorBInput.value)));
 
         // Add event listener to the download button
         downloadBtn.addEventListener('click', downloadQRCode);
